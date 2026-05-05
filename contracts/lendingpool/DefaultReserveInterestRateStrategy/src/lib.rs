@@ -97,7 +97,11 @@ impl InterestRateStrategy {
     ///              / total_borrows
     /// 6. Rl = Ro * U / RAY
     /// 7. Return RateCalcOutput { variable_rate: Rv, stable_rate: Rs, liquidity_rate: Rl }
-    pub fn calculate_rates(_env: Env, _params: StrategyParams, _input: RateCalcInput) -> RateCalcOutput {
+    pub fn calculate_rates(
+        _env: Env,
+        _params: StrategyParams,
+        _input: RateCalcInput,
+    ) -> RateCalcOutput {
         todo!("implement two-slope model — see module doc for formulas")
     }
 }
@@ -109,10 +113,10 @@ mod tests {
 
     fn default_params() -> StrategyParams {
         StrategyParams {
-            base_variable_rate: RAY / 100,      // 1%
-            optimal_utilisation: RAY * 8 / 10,  // 80%
-            slope1: RAY * 4 / 100,              // 4%
-            slope2: RAY * 75 / 100,             // 75%
+            base_variable_rate: RAY / 100,     // 1%
+            optimal_utilisation: RAY * 8 / 10, // 80%
+            slope1: RAY * 4 / 100,             // 4%
+            slope2: RAY * 75 / 100,            // 75%
         }
     }
 

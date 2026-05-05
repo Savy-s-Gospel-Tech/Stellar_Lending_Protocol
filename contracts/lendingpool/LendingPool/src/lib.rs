@@ -21,6 +21,7 @@
 //!   - The reserve has sufficient liquidity
 //!   - The user's collateral value * LTV >= existing debt + new borrow
 //!   - The resulting health factor >= 1
+//!
 //! The user chooses variable or stable rate at borrow time.
 //!
 //! ### Repay

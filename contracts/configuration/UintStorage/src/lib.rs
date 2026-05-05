@@ -2,7 +2,6 @@
 //!
 //! Storage utility for uint values.
 
-
 #![no_std]
 
 use soroban_sdk::{contract, contractimpl, contracttype, Env, Symbol};

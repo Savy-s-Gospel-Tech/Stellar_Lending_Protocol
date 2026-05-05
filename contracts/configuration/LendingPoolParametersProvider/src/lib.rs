@@ -18,6 +18,7 @@
 //! | FLASHLOAN_FEE_PROTOCOL      | 3000    | Share of flash loan fee going to protocol (30 %) |
 
 #![no_std]
+#![allow(dead_code)] // RAY constant used once functions are implemented
 
 use soroban_sdk::{contract, contractimpl, contracttype, Address, Env};
 

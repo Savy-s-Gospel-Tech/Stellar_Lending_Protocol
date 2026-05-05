@@ -23,20 +23,21 @@
 //! - TOKEN_DISTRIBUTOR
 
 #![no_std]
+#![allow(dead_code)] // constants used once functions are implemented
 
 use soroban_sdk::{contract, contractimpl, contracttype, symbol_short, Address, Env, Symbol};
 
-const LENDING_POOL: Symbol                    = symbol_short!("LP");
-const LENDING_POOL_CORE: Symbol               = symbol_short!("LP_CORE");
-const LENDING_POOL_CONFIGURATOR: Symbol       = symbol_short!("LP_CFG");
+const LENDING_POOL: Symbol = symbol_short!("LP");
+const LENDING_POOL_CORE: Symbol = symbol_short!("LP_CORE");
+const LENDING_POOL_CONFIGURATOR: Symbol = symbol_short!("LP_CFG");
 const LENDING_POOL_PARAMETERS_PROVIDER: Symbol = symbol_short!("LP_PARAMS");
-const LENDING_POOL_MANAGER: Symbol            = symbol_short!("LP_MGR");
+const LENDING_POOL_MANAGER: Symbol = symbol_short!("LP_MGR");
 const LENDING_POOL_LIQUIDATION_MANAGER: Symbol = symbol_short!("LP_LIQ");
-const DATA_PROVIDER: Symbol                   = symbol_short!("DATA_PRV");
-const PRICE_ORACLE: Symbol                    = symbol_short!("PRICE_ORC");
-const LENDING_RATE_ORACLE: Symbol             = symbol_short!("RATE_ORC");
-const FEE_PROVIDER: Symbol                    = symbol_short!("FEE_PRV");
-const TOKEN_DISTRIBUTOR: Symbol               = symbol_short!("TOKEN_DST");
+const DATA_PROVIDER: Symbol = symbol_short!("DATA_PRV");
+const PRICE_ORACLE: Symbol = symbol_short!("PRICE_ORC");
+const LENDING_RATE_ORACLE: Symbol = symbol_short!("RATE_ORC");
+const FEE_PROVIDER: Symbol = symbol_short!("FEE_PRV");
+const TOKEN_DISTRIBUTOR: Symbol = symbol_short!("TOKEN_DST");
 
 #[contracttype]
 pub enum DataKey {

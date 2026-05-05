@@ -6,8 +6,6 @@
 //! v1: integrate Reflector on-chain oracle aggregator (planned).
 //!
 
-
-
 //!
 //! ## Price precision
 //! All prices are expressed in USD with 7 decimal places (Stellar convention).

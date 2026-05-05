@@ -17,6 +17,7 @@
 //! where origination_fee_percentage = 0.0025 * 1e18 (wad)
 
 #![no_std]
+#![allow(dead_code)] // constants used once functions are implemented
 
 use soroban_sdk::{contract, contractimpl, contracttype, Address, Env};
 

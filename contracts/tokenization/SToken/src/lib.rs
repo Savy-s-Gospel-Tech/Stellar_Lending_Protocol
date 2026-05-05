@@ -103,7 +103,13 @@ impl SToken {
         todo!("require_auth from; check balance; update balances; emit event")
     }
 
-    pub fn transfer_from(_env: Env, _spender: Address, _from: Address, _to: Address, _amount: i128) {
+    pub fn transfer_from(
+        _env: Env,
+        _spender: Address,
+        _from: Address,
+        _to: Address,
+        _amount: i128,
+    ) {
         todo!("require_auth spender; check allowance; update balances and allowance; emit event")
     }
 
@@ -112,7 +118,9 @@ impl SToken {
     }
 
     pub fn burn_from(_env: Env, _spender: Address, _from: Address, _amount: i128) {
-        todo!("require_auth spender; check allowance; decrease balance and total_supply; emit event")
+        todo!(
+            "require_auth spender; check allowance; decrease balance and total_supply; emit event"
+        )
     }
 
     // ── Mint / Burn (pool only) ───────────────────────────────────────────────
@@ -135,7 +143,9 @@ impl SToken {
     /// 3. `DataKey::Balance(from) -= amount`
     /// 4. `DataKey::TotalSupply -= amount`
     pub fn pool_burn(_env: Env, _from: Address, _amount: i128) {
-        todo!("require_auth pool; assert sufficient balance; decrease Balance(from) and TotalSupply")
+        todo!(
+            "require_auth pool; assert sufficient balance; decrease Balance(from) and TotalSupply"
+        )
     }
 }
 

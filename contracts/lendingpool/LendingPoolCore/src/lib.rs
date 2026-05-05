@@ -251,12 +251,7 @@ impl LendingPoolCore {
 
     // ── User reserve mutations ────────────────────────────────────────────────
 
-    pub fn set_user_reserve(
-        _env: Env,
-        _user: Address,
-        _asset: Address,
-        _data: UserReserveData,
-    ) {
+    pub fn set_user_reserve(_env: Env, _user: Address, _asset: Address, _data: UserReserveData) {
         todo!("require_auth pool; persist DataKey::UserReserve(user, asset)")
     }
 

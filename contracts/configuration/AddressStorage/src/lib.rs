@@ -2,7 +2,6 @@
 //!
 //! Storage utility for addresses used by LendingPoolAddressesProvider.
 
-
 #![no_std]
 
 use soroban_sdk::{contract, contractimpl, contracttype, Address, Env, Symbol};

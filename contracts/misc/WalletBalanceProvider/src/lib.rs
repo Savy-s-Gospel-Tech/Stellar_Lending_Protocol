@@ -5,7 +5,6 @@
 //! sToken balances for a user across multiple assets in a single call.
 //!
 
-
 #![no_std]
 
 use soroban_sdk::{contract, contractimpl, contracttype, Address, Env, Vec};
