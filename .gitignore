@@ -28,3 +28,6 @@ Thumbs.db
 
 # Stellar CLI
 .stellar/
+
+# Private scripts
+scripts/create-issues.sh

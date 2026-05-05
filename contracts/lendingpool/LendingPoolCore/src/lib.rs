@@ -153,7 +153,7 @@ impl LendingPoolCore {
     /// Must be called before any balance change on a reserve.
     ///
     /// # Formulas
-    /// ```
+    /// ```text
     /// delta_ledgers = current_ledger - last_update_ledger
     ///
     /// // Liquidity index: simple interest (linear)
@@ -180,7 +180,7 @@ impl LendingPoolCore {
     /// Recalculate utilisation and all three rates. Call after every balance change.
     ///
     /// # Formula
-    /// ```
+    /// ```text
     /// available_liquidity = total_liquidity - total_variable_borrows - total_stable_borrows
     /// (Rl, Rs, Rv) = InterestRateStrategy::calculate_interest_rates(
     ///     available_liquidity, total_stable_borrows, total_variable_borrows, avg_stable_rate
@@ -219,7 +219,7 @@ impl LendingPoolCore {
     /// Increase stable borrows and update the weighted average stable rate.
     ///
     /// # Formula
-    /// ```
+    /// ```text
     /// Rsa_new = (Bs_old * Rsa_old + amount * rate) / (Bs_old + amount)
     /// ```
     pub fn increase_stable_borrows(_env: Env, _asset: Address, _amount: i128, _rate: i128) {
@@ -235,7 +235,7 @@ impl LendingPoolCore {
     /// Decrease stable borrows and update the weighted average stable rate.
     ///
     /// # Formula
-    /// ```
+    /// ```text
     /// if Bs_old - amount == 0: Rsa_new = 0
     /// else: Rsa_new = (Bs_old * Rsa_old - amount * rate) / (Bs_old - amount)
     /// ```

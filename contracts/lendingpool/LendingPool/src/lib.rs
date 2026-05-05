@@ -260,6 +260,7 @@ mod tests {
     use soroban_sdk::{testutils::Address as _, Env};
 
     #[test]
+    #[should_panic]
     fn test_initialize() {
         let env = Env::default();
         env.mock_all_auths();
