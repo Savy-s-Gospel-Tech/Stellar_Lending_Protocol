@@ -1,0 +1,30 @@
+# Rust build output
+/target
+**/target/
+
+# Cargo lock is kept for reproducible builds (do not ignore)
+# Cargo.lock
+
+# Test snapshots (generated, not source)
+test_snapshots/
+**/test_snapshots/
+
+# Compiled WASM artifacts
+*.wasm
+
+# Environment and secrets
+.env
+.env.*
+!.env.example
+
+# IDE
+.idea/
+.vscode/
+*.iml
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Stellar CLI
+.stellar/

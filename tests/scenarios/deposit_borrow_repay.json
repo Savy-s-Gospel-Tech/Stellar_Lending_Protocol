@@ -1,0 +1,44 @@
+{
+  "description": "Basic deposit → borrow → repay cycle for a single asset",
+  "steps": [
+    {
+      "action": "deposit",
+      "user": "alice",
+      "asset": "XLM",
+      "amount": "1000000000",
+      "expect": {
+        "stoken_balance": "1000000000",
+        "reserve_total_liquidity": "1000000000"
+      }
+    },
+    {
+      "action": "borrow",
+      "user": "alice",
+      "asset": "XLM",
+      "amount": "500000000",
+      "rate_mode": "variable",
+      "expect": {
+        "health_factor_above": "1000000000000000000000000000",
+        "reserve_total_variable_borrows": "500000000"
+      }
+    },
+    {
+      "action": "repay",
+      "user": "alice",
+      "asset": "XLM",
+      "amount": "500000000",
+      "expect": {
+        "user_borrow_balance": "0"
+      }
+    },
+    {
+      "action": "redeem",
+      "user": "alice",
+      "asset": "XLM",
+      "amount": "1000000000",
+      "expect": {
+        "stoken_balance": "0"
+      }
+    }
+  ]
+}

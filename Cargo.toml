@@ -1,0 +1,64 @@
+[workspace]
+resolver = "2"
+members = [
+    # Interfaces (cross-contract trait definitions)
+    "contracts/interfaces",
+
+    # Libraries (shared utilities)
+    "contracts/libraries/WadRayMath",
+    "contracts/libraries/CoreLibrary",
+    "contracts/libraries/StellarAddressLib",
+
+    # Configuration (registry and admin)
+    "contracts/configuration/LendingPoolAddressesProvider",
+    "contracts/configuration/LendingPoolParametersProvider",
+    "contracts/configuration/AddressStorage",
+    "contracts/configuration/UintStorage",
+
+    # Lending Pool (core business logic)
+    "contracts/lendingpool/LendingPool",
+    "contracts/lendingpool/LendingPoolCore",
+    "contracts/lendingpool/LendingPoolDataProvider",
+    "contracts/lendingpool/LendingPoolConfigurator",
+    "contracts/lendingpool/LendingPoolLiquidationManager",
+    "contracts/lendingpool/DefaultReserveInterestRateStrategy",
+
+    # Tokenization (sToken — SEP-41 interest-bearing receipt token)
+    "contracts/tokenization/SToken",
+
+    # Fees
+    "contracts/fees/FeeProvider",
+    "contracts/fees/TokenDistributor",
+
+    # Oracles
+    "contracts/oracles/PriceOracle",
+    "contracts/oracles/LendingRateOracle",
+
+    # Misc (oracle aggregator + wallet utilities)
+    "contracts/misc/ChainlinkProxyPriceProvider",
+    "contracts/misc/WalletBalanceProvider",
+
+    # Flash Loans
+    "contracts/flashloan/interfaces/IFlashLoanReceiver",
+    "contracts/flashloan/base/FlashLoanReceiverBase",
+
+    # Mocks (test helpers)
+    "contracts/mocks/FlashLoanReceiver",
+]
+
+[workspace.dependencies]
+soroban-sdk = { version = "22.0.0", features = ["testutils"] }
+
+[profile.release]
+opt-level = "z"
+overflow-checks = true
+debug = 0
+strip = "symbols"
+debug-assertions = false
+panic = "abort"
+codegen-units = 1
+lto = true
+
+[profile.release-with-logs]
+inherits = "release"
+debug-assertions = true

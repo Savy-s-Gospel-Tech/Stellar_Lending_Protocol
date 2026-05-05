@@ -1,0 +1,45 @@
+{
+  "description": "Liquidation scenario: borrower's collateral drops in price, liquidator steps in",
+  "steps": [
+    {
+      "action": "deposit",
+      "user": "bob",
+      "asset": "XLM",
+      "amount": "1000000000",
+      "expect": {}
+    },
+    {
+      "action": "borrow",
+      "user": "bob",
+      "asset": "USDC",
+      "amount": "700000000",
+      "rate_mode": "variable",
+      "expect": {
+        "health_factor_above": "1000000000000000000000000000"
+      }
+    },
+    {
+      "action": "set_price",
+      "asset": "XLM",
+      "price": "500000",
+      "comment": "XLM price drops 50% — bob's position becomes undercollateralised"
+    },
+    {
+      "action": "assert_health_factor_below",
+      "user": "bob",
+      "threshold": "1000000000000000000000000000"
+    },
+    {
+      "action": "liquidation_call",
+      "liquidator": "charlie",
+      "borrower": "bob",
+      "debt_asset": "USDC",
+      "collateral_asset": "XLM",
+      "debt_to_cover": "350000000",
+      "comment": "charlie covers 50% of bob's debt, receives XLM + bonus",
+      "expect": {
+        "bob_health_factor_above": "1000000000000000000000000000"
+      }
+    }
+  ]
+}
