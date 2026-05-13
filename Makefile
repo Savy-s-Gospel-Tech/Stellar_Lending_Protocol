@@ -1,4 +1,4 @@
-.PHONY: all build test fmt lint clean
+.PHONY: all build test fmt lint check clean
 
 all: build
 
@@ -13,6 +13,9 @@ fmt:
 
 lint:
 	cargo clippy --all-targets -- -D warnings
+
+check: fmt lint
+	@echo "All checks passed."
 
 clean:
 	cargo clean
