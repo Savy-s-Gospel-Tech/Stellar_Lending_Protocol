@@ -4,155 +4,110 @@ This document defines the implementation order for the Stellar Lending Protocol.
 Contracts are ordered by dependency — each contract can only be implemented after
 the ones it depends on are complete and passing tests.
 
+**Legend:** ✅ done · ⚠️ partial · 🔨 open
+
 ---
 
-## Phase 1 — Foundation
+## Phase 1 — Foundation ✅
 
-Nothing else in the protocol works without these.
+| # | Contract | Location | Status | Notes |
+|---|---|---|---|---|
+| 1 | WadRayMath | `contracts/libraries/WadRayMath` | ⚠️ | wad_* done; ray_mul/div need 256-bit (SLP-001); compound terms 2+3 open (SLP-002) |
+| 2 | CoreLibrary | `contracts/libraries/CoreLibrary` | ✅ | Structs complete |
+| 3 | StellarAddressLib | `contracts/libraries/StellarAddressLib` | ✅ | XLM SAC sentinel |
+
+---
+
+## Phase 2 — Infrastructure ✅
+
+| # | Contract | Location | Status | Notes |
+|---|---|---|---|---|
+| 4 | AddressStorage | `contracts/configuration/AddressStorage` | ✅ | |
+| 5 | UintStorage | `contracts/configuration/UintStorage` | ✅ | |
+| 6 | LendingPoolAddressesProvider | `contracts/configuration/LendingPoolAddressesProvider` | ✅ | All 11 pairs, 4 tests |
+| 7 | LendingPoolParametersProvider | `contracts/configuration/LendingPoolParametersProvider` | ✅ | Defaults set |
+
+---
+
+## Phase 3 — Oracles and Fees ✅
+
+| # | Contract | Location | Status | Notes |
+|---|---|---|---|---|
+| 8 | PriceOracle | `contracts/oracles/PriceOracle` | ✅ | Admin-fed v0, 3 tests |
+| 9 | LendingRateOracle | `contracts/oracles/LendingRateOracle` | ✅ | Mr default 0, 3 tests |
+| 10 | FeeProvider | `contracts/fees/FeeProvider` | ⚠️ | Integer approx; wad_mul upgrade open as SLP-003 |
+
+---
+
+## Phase 4 — Interest Rate Model 🔨
 
 | # | Contract | Location | Complexity | Depends on |
 |---|---|---|---|---|
-| 1 | WadRayMath | `contracts/libraries/WadRayMath` | Medium | — |
-| 2 | CoreLibrary | `contracts/libraries/CoreLibrary` | Medium | WadRayMath |
-| 3 | StellarAddressLib | `contracts/libraries/StellarAddressLib` | Trivial | — |
+| 11 | DefaultReserveInterestRateStrategy | `contracts/lendingpool/DefaultReserveInterestRateStrategy` | High | WadRayMath (SLP-001) |
 
-**Why first:** Every interest calculation in the protocol uses `ray_mul`, `ray_div`,
-and `calculate_compound_interest` from WadRayMath. CoreLibrary defines the
-`ReserveData` and `UserReserveData` structs that PoolCore stores and every other
-contract reads.
+**Issue:** SLP-007. Two-slope model: `Rv`, `Rs`, `Rl` from utilisation `U`. See `scripts/issues/issue-07.md`.
 
 ---
 
-## Phase 2 — Infrastructure
-
-The registry and storage layer. Required before any cross-contract call can be made.
-
-| # | Contract | Location | Complexity | Depends on |
-|---|---|---|---|---|
-| 4 | AddressStorage | `contracts/configuration/AddressStorage` | Trivial | — |
-| 5 | UintStorage | `contracts/configuration/UintStorage` | Trivial | — |
-| 6 | LendingPoolAddressesProvider | `contracts/configuration/LendingPoolAddressesProvider` | Medium | AddressStorage |
-| 7 | LendingPoolParametersProvider | `contracts/configuration/LendingPoolParametersProvider` | Trivial | AddressesProvider |
-
-**Why second:** All contracts resolve each other's addresses through
-`LendingPoolAddressesProvider`. No integration test can run until this is working.
-
----
-
-## Phase 3 — Oracles and Fees
-
-Required before any borrow position can be validated.
-
-| # | Contract | Location | Complexity | Depends on |
-|---|---|---|---|---|
-| 8 | PriceOracle | `contracts/oracles/PriceOracle` | Trivial | — |
-| 9 | LendingRateOracle | `contracts/oracles/LendingRateOracle` | Trivial | — |
-| 10 | FeeProvider | `contracts/fees/FeeProvider` | Trivial | ParametersProvider |
-
-**Why third:** `LendingPoolDataProvider` needs `PriceOracle` to calculate collateral
-values and health factors. `LendingPool::borrow` needs `FeeProvider` to calculate
-the origination fee before executing.
-
----
-
-## Phase 4 — Interest Rate Model
-
-| # | Contract | Location | Complexity | Depends on |
-|---|---|---|---|---|
-| 11 | DefaultReserveInterestRateStrategy | `contracts/lendingpool/DefaultReserveInterestRateStrategy` | High | WadRayMath |
-
-**Why fourth:** `LendingPoolCore::update_interest_rates` calls this contract after
-every deposit, borrow, repay, and withdraw. It must be deployed per-reserve before
-any reserve can be initialised.
-
----
-
-## Phase 5 — Token
+## Phase 5 — Token 🔨
 
 | # | Contract | Location | Complexity | Depends on |
 |---|---|---|---|---|
 | 12 | SToken | `contracts/tokenization/SToken` | High | — |
 
-**Why fifth:** `LendingPool::deposit` mints sTokens and `LendingPool::withdraw`
-burns them. The full SEP-41 interface (mint, burn, transfer, balance, allowance)
-must be implemented and tested before the deposit/withdraw flow can work end-to-end.
+**Issue:** SLP-005. Full SEP-41: mint, burn, transfer, allowance. Pool-only mint/burn. See `scripts/issues/issue-05.md`.
 
 ---
 
-## Phase 6 — Core State Layer
-
-The most complex contract. Holds all protocol state and all deposited funds.
+## Phase 6 — Core State Layer 🔨
 
 | # | Contract | Location | Complexity | Depends on |
 |---|---|---|---|---|
 | 13 | LendingPoolCore | `contracts/lendingpool/LendingPoolCore` | High | WadRayMath, CoreLibrary, InterestRateStrategy |
 
-**Why sixth:** Every user action (deposit, borrow, repay, liquidate) reads and
-writes state through PoolCore. It must be fully working before the main pool can
-be implemented. Suggested sub-issues:
-- Reserve init and storage
-- `update_cumulative_indexes` (index math)
-- `update_interest_rates` (cross-contract call to strategy)
-- Liquidity and borrow balance mutations
+**Issue:** SLP-006. Reserve storage, `update_cumulative_indexes`, `update_interest_rates`, balance mutations. See `scripts/issues/issue-06.md`.
 
 ---
 
-## Phase 7 — Data and Configuration
+## Phase 7 — Data and Configuration 🔨
 
 | # | Contract | Location | Complexity | Depends on |
 |---|---|---|---|---|
 | 14 | LendingPoolDataProvider | `contracts/lendingpool/LendingPoolDataProvider` | High | PoolCore, PriceOracle, WadRayMath |
 | 15 | LendingPoolConfigurator | `contracts/lendingpool/LendingPoolConfigurator` | Medium | PoolCore, AddressesProvider |
 
-**Why seventh:** `LendingPoolDataProvider` calculates health factors — `LendingPool`
-calls it before every borrow and withdraw. `LendingPoolConfigurator` initialises
-reserves — no reserve can be used until it has been configured.
-
 ---
 
-## Phase 8 — Main Pool
+## Phase 8 — Main Pool 🔨
 
-The user-facing contract. Implement actions in order of complexity.
-
-| # | Contract / Action | Location | Complexity | Depends on |
+| # | Action | Location | Complexity | Depends on |
 |---|---|---|---|---|
-| 16 | LendingPool — `deposit` + `withdraw` | `contracts/lendingpool/LendingPool` | High | PoolCore, SToken, DataProvider |
-| 17 | LendingPool — `borrow` + `repay` | `contracts/lendingpool/LendingPool` | High | PoolCore, DataProvider, FeeProvider |
-| 18 | LendingPool — `swap_borrow_rate_mode` | `contracts/lendingpool/LendingPool` | Medium | PoolCore |
+| 16 | `deposit` + `withdraw` | `contracts/lendingpool/LendingPool` | High | PoolCore, SToken, DataProvider |
+| 17 | `borrow` + `repay` | `contracts/lendingpool/LendingPool` | High | PoolCore, DataProvider, FeeProvider |
+| 18 | `swap_borrow_rate_mode` | `contracts/lendingpool/LendingPool` | Medium | PoolCore |
 
-**Why eighth:** Deposit and withdraw are the simplest user actions and the first
-integration milestone. Borrow and repay depend on health factor checks being
-working. Rate swap is the least critical and can come last.
+**First working milestone:** deposit → earn interest → withdraw (actions 16 complete).
 
 ---
 
-## Phase 9 — Liquidation
+## Phase 9 — Liquidation 🔨
 
 | # | Contract | Location | Complexity | Depends on |
 |---|---|---|---|---|
 | 19 | LendingPoolLiquidationManager | `contracts/lendingpool/LendingPoolLiquidationManager` | High | DataProvider, PriceOracle, PoolCore |
 
-**Why ninth:** Liquidation depends on health factor calculation (DataProvider),
-collateral valuation (PriceOracle), and state mutations (PoolCore) all being
-correct. It is the last core protocol feature before flash loans.
-
 ---
 
-## Phase 10 — Flash Loans
+## Phase 10 — Flash Loans 🔨
 
 | # | Contract | Location | Complexity | Depends on |
 |---|---|---|---|---|
 | 20 | FlashLoanReceiverBase | `contracts/flashloan/base/FlashLoanReceiverBase` | Medium | — |
-| 21 | LendingPool — `flash_loan` | `contracts/lendingpool/LendingPool` | High | PoolCore, FeeProvider, FlashLoanReceiverBase |
-
-**Why tenth:** Flash loans are the last major feature. They depend on the pool's
-liquidity accounting being correct and the fee system being in place.
+| 21 | `flash_loan` | `contracts/lendingpool/LendingPool` | High | PoolCore, FeeProvider, FlashLoanReceiverBase |
 
 ---
 
-## Phase 11 — Mocks (test infrastructure, runs in parallel)
-
-These can be worked on at any point alongside the main phases.
+## Phase 11 — Mocks (parallel, any time) 🔨
 
 | # | Contract | Location | Complexity | Depends on |
 |---|---|---|---|---|
@@ -160,44 +115,37 @@ These can be worked on at any point alongside the main phases.
 | 23 | MockFlashLoanReceiver | `contracts/mocks/flashloan/FlashLoanReceiver` | Trivial | FlashLoanReceiverBase |
 | 24 | MockPoolCore | `contracts/mocks/upgradeability/MockPoolCore` | Medium | PoolCore interface |
 
-**Why parallel:** `MintableSEP41` is needed for integration tests (deposit/borrow
-flows need a real token to move around). `MockFlashLoanReceiver` is needed to test
-the flash loan flow. `MockPoolCore` is needed to test `LendingPool` in isolation
-without a full PoolCore deployment.
-
 ---
 
-## Phase 12 — Misc Utilities
+## Phase 12 — Misc Utilities 🔨
 
 | # | Contract | Location | Complexity | Depends on |
 |---|---|---|---|---|
-| 25 | OracleAggregator | `contracts/misc/OracleAggregator` | Medium | PriceOracle, IPriceFeed |
+| 25 | OracleAggregator | `contracts/misc/OracleAggregator` | Medium | PriceOracle |
 | 26 | WalletBalanceProvider | `contracts/misc/WalletBalanceProvider` | Trivial | SToken |
 | 27 | TokenDistributor | `contracts/fees/TokenDistributor` | Medium | FeeProvider |
 
-**Why last:** These are peripheral utilities — useful for frontends and fee
-distribution but not required for the core protocol to function.
+---
+
+## Open Contributor Issues
+
+| Issue | Contract | Complexity | Blocked by |
+|---|---|---|---|
+| SLP-001 | WadRayMath — `ray_mul`/`ray_div` 256-bit | Medium | — |
+| SLP-002 | WadRayMath — `calculate_compound_interest` terms 2+3 | Medium | SLP-001 |
+| SLP-003 | FeeProvider — replace integer div with `wad_mul` | Trivial | SLP-002 |
+| SLP-005 | SToken — full SEP-41 | High | — |
+| SLP-006 | LendingPoolCore | High | SLP-001, SLP-002 |
+| SLP-007 | DefaultReserveInterestRateStrategy | High | SLP-001 |
 
 ---
 
-## Quick Reference
+## Milestones
 
-```
-Phase 1  →  WadRayMath, CoreLibrary, StellarAddressLib
-Phase 2  →  AddressStorage, UintStorage, AddressesProvider, ParametersProvider
-Phase 3  →  PriceOracle, LendingRateOracle, FeeProvider
-Phase 4  →  InterestRateStrategy
-Phase 5  →  SToken
-Phase 6  →  LendingPoolCore
-Phase 7  →  LendingPoolDataProvider, LendingPoolConfigurator
-Phase 8  →  LendingPool (deposit/withdraw → borrow/repay → swap rate)
-Phase 9  →  LiquidationManager
-Phase 10 →  FlashLoanReceiverBase, LendingPool flash_loan
-Phase 11 →  Mocks (parallel)
-Phase 12 →  Misc utilities
-```
-
-First working milestone: **deposit → earn interest → withdraw** (Phases 1–8, actions 16).
-Second milestone: **borrow → repay** (Phase 8, actions 17).
-Third milestone: **liquidation** (Phase 9).
-Fourth milestone: **flash loans** (Phase 10).
+| Milestone | Requires | Status |
+|---|---|---|
+| **M0 — Apply to Drips Wave** | Phases 1–3 done | ✅ Ready |
+| **M1 — Deposit/Withdraw** | Phases 4–8 (action 16) | 🔨 |
+| **M2 — Borrow/Repay** | Phase 8 (action 17) | 🔨 |
+| **M3 — Liquidations** | Phase 9 | 🔨 |
+| **M4 — Flash Loans** | Phase 10 | 🔨 |
