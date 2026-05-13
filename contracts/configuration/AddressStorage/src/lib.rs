@@ -16,13 +16,18 @@ pub struct AddressStorage;
 
 #[contractimpl]
 impl AddressStorage {
-    /// Get address by key
-    pub fn get_address(_env: Env, _key: Symbol) -> Address {
-        todo!("return address from storage by key")
+    /// Get address by key. Panics if not set.
+    pub fn get_address(env: Env, key: Symbol) -> Address {
+        env.storage()
+            .instance()
+            .get(&DataKey::Address(key))
+            .expect("address not set")
     }
 
-    /// Set address by key (internal function)
-    pub fn set_address(_env: Env, _key: Symbol, _address: Address) {
-        todo!("store address by key")
+    /// Set address by key.
+    pub fn set_address(env: Env, key: Symbol, address: Address) {
+        env.storage()
+            .instance()
+            .set(&DataKey::Address(key), &address);
     }
 }

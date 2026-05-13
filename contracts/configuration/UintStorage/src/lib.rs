@@ -16,13 +16,18 @@ pub struct UintStorage;
 
 #[contractimpl]
 impl UintStorage {
-    /// Get uint by key
-    pub fn get_uint(_env: Env, _key: Symbol) -> u128 {
-        todo!("return uint from storage by key")
+    /// Get uint by key. Panics if not set.
+    pub fn get_uint(env: Env, key: Symbol) -> u128 {
+        env.storage()
+            .instance()
+            .get(&DataKey::Uint(key))
+            .expect("uint not set")
     }
 
-    /// Set uint by key (internal function)
-    pub fn set_uint(_env: Env, _key: Symbol, _value: u128) {
-        todo!("store uint by key")
+    /// Set uint by key.
+    pub fn set_uint(env: Env, key: Symbol, value: u128) {
+        env.storage()
+            .instance()
+            .set(&DataKey::Uint(key), &value);
     }
 }
